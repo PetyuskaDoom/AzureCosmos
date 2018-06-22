@@ -25,45 +25,45 @@ namespace AzureCosmosProj {
 
             //continueLoopItteration();
 
-            CreateDocumentsAsync();
+            //CreateDocumentsAsync();
         }
 
-    static void CreateDocumentsAsync()
-    {
-        string fileName = "/myjson.json";
+    //static void CreateDocumentsAsync()
+    //{
+    //    string fileName = "/myjson.json";
 
-        // Obtain AAD token for ADLS 
-        var creds = new ClientCredential(applicationId, clientSecret);
-        var clientCreds = ApplicationTokenProvider.LoginSilentAsync(tenantId, creds).GetAwaiter().GetResult();
+    //    // Obtain AAD token for ADLS 
+    //    var creds = new ClientCredential(applicationId, clientSecret);
+    //    var clientCreds = ApplicationTokenProvider.LoginSilentAsync(tenantId, creds).GetAwaiter().GetResult();
 
-        // Create ADLS client object
-        AdlsClient client = AdlsClient.CreateClient(adlsAccountFQDN, clientCreds);
+    //    // Create ADLS client object
+    //    AdlsClient client = AdlsClient.CreateClient(adlsAccountFQDN, clientCreds);
 
-        String json = "";
+    //    String json = "";
 
-        //Read file contents
-        using (var readStream = new StreamReader(client.GetReadStream(fileName)))
-        {
-            string line;
-            while ((line = readStream.ReadLine()) != null)
-            {
-                Console.WriteLine("Read file Line: " + line);
-                json += line;
-            }
-        }
+    //    //Read file contents
+    //    using (var readStream = new StreamReader(client.GetReadStream(fileName)))
+    //    {
+    //        string line;
+    //        while ((line = readStream.ReadLine()) != null)
+    //        {
+    //            Console.WriteLine("Read file Line: " + line);
+    //            json += line;
+    //        }
+    //    }
 
-        //Read file to json
-        JsonTextReader reader = new JsonTextReader(new StringReader(json));
+    //    //Read file to json
+    //    JsonTextReader reader = new JsonTextReader(new StringReader(json));
 
-        //Storing json to CosmosDB
-        Uri collectionUri = UriFactory.CreateDocumentCollectionUri(databaseName, collectionName);
+    //    //Storing json to CosmosDB
+    //    Uri collectionUri = UriFactory.CreateDocumentCollectionUri(databaseName, collectionName);
 
-        using (DocumentClient DocumentDBclient2 = new DocumentClient(new Uri(endpointUrl), authorizationKey))
-        {
-            Document doc = await DocumentDBclient2.CreateDocumentAsync(collectionUri, reader);
+    //    using (DocumentClient DocumentDBclient2 = new DocumentClient(new Uri(endpointUrl), authorizationKey))
+    //    {
+    //        Document doc = await DocumentDBclient2.CreateDocumentAsync(collectionUri, reader);
 
-        }
-    }
+    //    }
+    //}
 
     
 
@@ -85,7 +85,7 @@ namespace AzureCosmosProj {
                 Console.WriteLine("Successfully logged in to ii.....\n");
 
                 var recordCount = 10300;
-                var count = 1;
+                var count = 0;
 
 
                 var path = @"C:\json\test";
@@ -94,19 +94,31 @@ namespace AzureCosmosProj {
 
                 var fullPath = path + fileNumber + extension;
 
+                var recSkipped = false;
+
                 for (var i = 0; i < recordCount; i++)
                 {
                     try
                     {
-                        if(count < 1001) {
+                        if(count < 280) {
 
                             if (!File.Exists(fullPath))
                             {
                                 File.Create(fullPath).Dispose();
+                                File.AppendAllText(fullPath, "[");
+                            }
+
+                            if (recSkipped == true)
+                            {
+                                recSkipped = false;
+                            }
+                            else
+                            {
+                                count++;
                             }
 
                             var json = client.DownloadString("https://tie.interpreterintelligence.com:443/api/contact/" + count);
-                            count++;
+
 
                             //Console.WriteLine("Download string from Interpreter Intelligence : " + json);
 
@@ -118,6 +130,7 @@ namespace AzureCosmosProj {
 
                             //File.WriteAllText(@"C:\json\test.json", JsonConvert.SerializeObject(rootjson));
                             File.AppendAllText(fullPath, JsonConvert.SerializeObject(rootjson));
+                            File.AppendAllText(fullPath, ",");
                             File.AppendAllText(fullPath, Environment.NewLine);
 
 
@@ -180,18 +193,23 @@ namespace AzureCosmosProj {
 
                         //    Console.WriteLine("Contents successfully writing to file.....Record: " + count);
                         //}
-                        else
-                        {
-                            Console.WriteLine("If statement finished...");
-                            Console.ReadLine();
-                        }
+                        //else
+                        //{
+                        //    File.AppendAllText(fullPath, "]");
+                        //    Console.WriteLine("If statement finished...");
+
+                        //    //Console.ReadLine();
+                        //}
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(count + " : Record not found.....");
                         count++;
+
+                        recSkipped = true;
                     }
                 }
+                File.AppendAllText(fullPath, "]");
             }
         }
     }
