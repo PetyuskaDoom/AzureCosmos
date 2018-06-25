@@ -86,6 +86,7 @@ namespace AzureCosmosProj {
 
                 var recordCount = 10300;
                 var count = 0;
+                var totalRecords = 0;
 
 
                 var path = @"C:\json\test";
@@ -115,91 +116,23 @@ namespace AzureCosmosProj {
                             else
                             {
                                 count++;
+                                totalRecords++;
                             }
 
                             var json = client.DownloadString("https://tie.interpreterintelligence.com:443/api/contact/" + count);
 
-
-                            //Console.WriteLine("Download string from Interpreter Intelligence : " + json);
-
                             dynamic rootjson = JsonConvert.DeserializeObject(json);
 
-                            //var rootjson = JsonConvert.DeserializeObject<dynamic>(json);
-
-                            //Console.WriteLine("Root object : " + rootjson);
-
-                            //File.WriteAllText(@"C:\json\test.json", JsonConvert.SerializeObject(rootjson));
                             File.AppendAllText(fullPath, JsonConvert.SerializeObject(rootjson));
-                            File.AppendAllText(fullPath, ",");
+
+                            if (count < 280) 
+                                File.AppendAllText(fullPath, ",");
+
                             File.AppendAllText(fullPath, Environment.NewLine);
 
 
                             Console.WriteLine("Contents successfully writing to file.....Record: " + count);
                         }
-
-
-                        //else if (count != 5001)
-                        //{
-                        //    var json = client.DownloadString("https://tie.interpreterintelligence.com:443/api/contact/" + count);
-                        //    count++;
-
-                        //    //Console.WriteLine("Download string from Interpreter Intelligence : " + json);
-
-                        //    dynamic rootjson = JsonConvert.DeserializeObject(json);
-
-                        //    //var rootjson = JsonConvert.DeserializeObject<dynamic>(json);
-
-                        //    //Console.WriteLine("Root object : " + rootjson);
-
-                        //    //File.WriteAllText(@"C:\json\test.json", JsonConvert.SerializeObject(rootjson));
-                        //    File.AppendAllText(@"C:\json\test2.json", JsonConvert.SerializeObject(rootjson));
-
-                        //    Console.WriteLine("Contents successfully writing to file.....Record: " + count);
-                        //}
-                        //else if (count != 7501)
-                        //{
-                        //    var json = client.DownloadString("https://tie.interpreterintelligence.com:443/api/contact/" + count);
-                        //    count++;
-
-                        //    //Console.WriteLine("Download string from Interpreter Intelligence : " + json);
-
-                        //    dynamic rootjson = JsonConvert.DeserializeObject(json);
-
-                        //    //var rootjson = JsonConvert.DeserializeObject<dynamic>(json);
-
-                        //    //Console.WriteLine("Root object : " + rootjson);
-
-                        //    //File.WriteAllText(@"C:\json\test.json", JsonConvert.SerializeObject(rootjson));
-                        //    File.AppendAllText(@"C:\json\test3.json", JsonConvert.SerializeObject(rootjson));
-
-                        //    Console.WriteLine("Contents successfully writing to file.....Record: " + count);
-                        //}
-
-                        //else if (count != 10300)
-                        //{
-                        //    var json = client.DownloadString("https://tie.interpreterintelligence.com:443/api/contact/" + count);
-                        //    count++;
-
-                        //    //Console.WriteLine("Download string from Interpreter Intelligence : " + json);
-
-                        //    dynamic rootjson = JsonConvert.DeserializeObject(json);
-
-                        //    //var rootjson = JsonConvert.DeserializeObject<dynamic>(json);
-
-                        //    //Console.WriteLine("Root object : " + rootjson);
-
-                        //    //File.WriteAllText(@"C:\json\test.json", JsonConvert.SerializeObject(rootjson));
-                        //    File.AppendAllText(@"C:\json\test4.json", JsonConvert.SerializeObject(rootjson));
-
-                        //    Console.WriteLine("Contents successfully writing to file.....Record: " + count);
-                        //}
-                        //else
-                        //{
-                        //    File.AppendAllText(fullPath, "]");
-                        //    Console.WriteLine("If statement finished...");
-
-                        //    //Console.ReadLine();
-                        //}
                     }
                     catch (Exception ex)
                     {
@@ -210,10 +143,10 @@ namespace AzureCosmosProj {
                     }
                 }
                 File.AppendAllText(fullPath, "]");
+                Console.WriteLine("Total records in file..." + totalRecords);
+                Console.ReadLine();
             }
         }
     }
-
     // When the file is created, connect to cosmos db and upload the file.
-
 }
